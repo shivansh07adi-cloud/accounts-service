@@ -8,7 +8,7 @@
 
 A RESTful microservice for managing customer **Accounts**, built with Flask and PostgreSQL, containerized with Docker, deployed to Kubernetes/OpenShift, and shipped through a full CI/CD pipeline (GitHub Actions for CI, Tekton for CD).
 
-**Live demo:** _add your Render URL here once deployed, e.g. `https://accounts-service-xxxx.onrender.com`_ — try `GET /health` or `GET /accounts`. (First request may take ~30–60s to wake the free instance.)
+**Live demo:** https://accounts-service-2pc7.onrender.com — try `GET /health` or `GET /accounts`. (First request may take ~30–60s to wake the free instance.)
 
 It's a small, focused service — but it's wired up the way a real production microservice would be: input validation, security headers, structured logging, automated tests with coverage reporting, a Dockerized build, Kubernetes manifests, and a Tekton pipeline that lints, tests, builds and deploys it automatically.
 
@@ -25,6 +25,7 @@ It's a small, focused service — but it's wired up the way a real production mi
 - [Getting started](#getting-started)
 - [Running the tests](#running-the-tests)
 - [Running with Docker](#running-with-docker)
+- [Deploying to Render (free, live URL for a portfolio/demo)](#deploying-to-render-free-live-url-for-a-portfoliodemo)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
 - [Local Kubernetes + Tekton development](#local-kubernetes--tekton-development)
 - [License](#license)
