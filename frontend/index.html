@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Accounts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dark: #282130;
+    --burgundy: #472731;
+    --coral: #F18A85;
+    --teal: #24788F;
+    --slate: #849DAB;
+
+    --bg: #FBF8F5;
+    --field-bg: #FFFFFF;
+    --ink: var(--dark);
+    --ink-dim: var(--slate);
+    --line: rgba(40, 33, 48, 0.13);
+    --line-strong: rgba(40, 33, 48, 0.22);
+    --danger-text: var(--burgundy);
+    --radius: 6px;
+
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  :root[data-theme="dark"] {
+    --bg: #282130;
+    --field-bg: #332B3C;
+    --ink: #F1ECE7;
+    --ink-dim: #9CB0BC;
+    --line: rgba(241, 236, 231, 0.14);
+    --line-strong: rgba(241, 236, 231, 0.24);
+    --danger-text: #C98F96;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #282130;
+      --field-bg: #332B3C;
+      --ink: #F1ECE7;
+      --ink-dim: #9CB0BC;
+      --line: rgba(241, 236, 231, 0.14);
+      --line-strong: rgba(241, 236, 231, 0.24);
+      --danger-text: #C98F96;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; max-width: 100%; overflow-x: clip; background: var(--bg); }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  a { color: var(--teal); }
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px;
+  }
+
+  main { max-width: 560px; margin: 0 auto; padding: 44px 20px 70px; }
+
+  /* ---------- header ---------- */
+  .head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .mark {
+    width: 26px; height: 26px; border-radius: 6px; flex: none;
+    background: var(--burgundy);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mark svg { width: 14px; height: 14px; }
+  h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--ink); }
+  .status {
+    margin-left: auto; display: flex; align-items: center; gap: 6px;
+    font-size: 11.5px; color: var(--ink-dim);
+  }
+  .status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--slate); flex: none; transition: background 0.25s ease; }
+  .status .dot.up { background: var(--teal); }
+  .status .dot.down { background: var(--danger-text); }
+
+  main > .lede { font-size: 13px; color: var(--ink-dim); margin: 0 0 30px; max-width: 46ch; }
+
+  /* ---------- form ---------- */
+  h2 { font-size: 14.5px; font-weight: 600; margin: 0 0 3px; color: var(--ink); }
+  .section-help { font-size: 12.5px; color: var(--ink-dim); margin: 0 0 16px; }
+
+  .field { margin-bottom: 12px; }
+  .field label {
+    display: block; font-size: 11.5px; font-weight: 500; color: var(--ink-dim);
+    margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .field label .opt { text-transform: none; letter-spacing: 0; opacity: 0.75; }
+  input {
+    width: 100%; background: var(--field-bg); border: 1px solid var(--line-strong); color: var(--ink);
+    padding: 8px 10px; border-radius: var(--radius); font-size: 13.5px; font-family: inherit;
+    height: 36px; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(36,120,143,0.14); outline: none; }
+  input::placeholder { color: var(--ink-dim); opacity: 0.65; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 440px) { .row2 { grid-template-columns: 1fr; } }
+
+  .form-foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    border: none; border-radius: var(--radius); font-family: inherit; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    transition: filter 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--coral); color: #2A1310; padding: 8px 20px; height: 36px; }
+  .btn-primary:hover { filter: brightness(1.04); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-plain {
+    background: transparent; border: none; padding: 3px 4px; font-size: 12px; font-weight: 500;
+    color: var(--teal); cursor: pointer; font-family: inherit;
+  }
+  .btn-plain:hover { text-decoration: underline; }
+  .btn-plain.danger { color: var(--danger-text); }
+  .btn-save { background: var(--teal); color: #fff; padding: 6px 13px; height: 30px; font-size: 12.5px; }
+
+  .spinner {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid rgba(42,19,16,0.35); border-top-color: #2A1310;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    margin-top: 10px; font-size: 12.5px; color: var(--danger-text);
+    border-left: 2px solid var(--danger-text); padding: 0 0 0 9px;
+    max-height: 0; opacity: 0; overflow: hidden; transition: all 0.2s ease;
+  }
+  .error.show { max-height: 60px; opacity: 1; }
+
+  /* ---------- divider ---------- */
+  hr { border: none; border-top: 1px solid var(--line); margin: 30px 0 22px; }
+
+  /* ---------- list ---------- */
+  .list-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .list-head .count { font-size: 12px; color: var(--ink-dim); }
+
+  ul.records { list-style: none; margin: 12px 0 0; padding: 0; }
+  .record {
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 0; border-bottom: 1px solid var(--line);
+    animation: rowIn 0.25s ease both;
+    transition: opacity 0.2s ease, transform 0.2s ease, max-height 0.2s ease, padding 0.2s ease;
+    overflow: hidden; max-height: 60px;
+  }
+  .record.leaving { opacity: 0; transform: translateX(5px); max-height: 0; padding-top: 0; padding-bottom: 0; }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .record:first-child { padding-top: 0; }
+  .record:last-child { border-bottom: none; }
+
+  .record-name { font-weight: 600; font-size: 13.5px; flex: 0 0 150px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .record-email { font-size: 13px; color: var(--ink-dim); flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .record-phone { font-size: 13px; color: var(--ink-dim); flex: 0 0 auto; }
+  .record-actions { display: flex; gap: 10px; flex: none; margin-left: auto; }
+
+  @media (max-width: 560px) {
+    .record { flex-wrap: wrap; }
+    .record-name { flex: 1 1 100%; }
+    .record-email { flex: 1 1 auto; }
+    .record-actions { margin-left: 0; }
+  }
+
+  .edit-card {
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
+    padding: 12px; margin: 4px 0 12px; animation: rowIn 0.2s ease both;
+  }
+  .edit-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+
+  .empty { padding: 22px 0; color: var(--ink-dim); font-size: 13px; }
+
+  footer { margin-top: 34px; font-size: 12px; color: var(--ink-dim); }
+  footer a { color: var(--ink-dim); text-decoration: underline; text-underline-offset: 2px; }
+
+  details.advanced { margin-top: 26px; font-size: 12px; color: var(--ink-dim); }
+  details.advanced summary { cursor: pointer; }
+  details.advanced summary:hover { color: var(--ink); }
+  details.advanced input { margin-top: 8px; font-size: 12px; height: 32px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(10px);
+    background: var(--dark); color: #fff; border-radius: var(--radius);
+    padding: 8px 14px; font-size: 12.5px; opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none; max-width: 90vw;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.err { background: var(--burgundy); }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="head">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="#FBF8F5" stroke-width="1.8"/><path d="M4.5 20c1.1-3.6 4.1-6 7.5-6s6.4 2.4 7.5 6" stroke="#FBF8F5" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <h1>Accounts</h1>
+    <div class="status" id="statusWrap" title="API status">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">connecting</span>
+    </div>
+  </div>
+  <p class="lede">A record of everyone you've added, stored in a live database.</p>
+
+  <section>
+    <h2>Add a person</h2>
+    <p class="section-help">Keep contact details organized in one place.</p>
+
+    <form id="createForm">
+      <div class="field">
+        <label for="f-name">Name</label>
+        <input id="f-name" required placeholder="Jane Doe" autocomplete="off" />
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="f-email">Email</label>
+          <input id="f-email" type="email" required placeholder="jane@example.com" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="f-phone">Phone <span class="opt">(optional)</span></label>
+          <input id="f-phone" placeholder="555-0100" autocomplete="off" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-address">Address</label>
+        <input id="f-address" required placeholder="123 Main Street" autocomplete="off" />
+      </div>
+
+      <div class="form-foot">
+        <div class="error" id="createError"></div>
+        <button class="btn btn-primary" type="submit" id="createBtn"><span id="createBtnLabel">Add person</span></button>
+      </div>
+    </form>
+  </section>
+
+  <hr />
+
+  <section>
+    <div class="list-head">
+      <h2>People</h2>
+      <span class="count" id="recordCount"></span>
+    </div>
+    <div id="listHost">
+      <div class="empty">Loading…</div>
+    </div>
+  </section>
+
+  <details class="advanced">
+    <summary>Connect to a different API</summary>
+    <input id="apiBase" value="https://accounts-service-2pc7.onrender.com" spellcheck="false" />
+  </details>
+
+  <footer>Backed by a Flask + PostgreSQL API — <a href="https://github.com/shivansh07adi-cloud/accounts-service" target="_blank" rel="noopener">source on GitHub</a>.</footer>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var apiBaseInput = document.getElementById('apiBase');
+  var statusDot = document.getElementById('statusDot');
+  var statusText = document.getElementById('statusText');
+  var statusWrap = document.getElementById('statusWrap');
+  var listHost = document.getElementById('listHost');
+  var recordCount = document.getElementById('recordCount');
+  var toastEl = document.getElementById('toast');
+  var createForm = document.getElementById('createForm');
+  var createBtn = document.getElementById('createBtn');
+  var createBtnLabel = document.getElementById('createBtnLabel');
+  var createError = document.getElementById('createError');
+
+  var editingId = null;
+  var currentRecords = [];
+
+  function apiBase() { return (apiBaseInput.value || '').trim().replace(/\/+$/, ''); }
+
+  function showToast(msg, isError) {
+    toastEl.textContent = msg;
+    toastEl.className = 'toast show' + (isError ? ' err' : '');
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(function () { toastEl.className = 'toast'; }, 3000);
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function request(path, options) {
+    options = options || {};
+    var opts = { method: options.method || 'GET', headers: {} };
+    if (options.body !== undefined) {
+      opts.headers['Content-Type'] = 'application/json';
+      opts.body = JSON.stringify(options.body);
+    }
+    return fetch(apiBase() + path, opts).then(function (res) {
+      if (res.status === 204) return { ok: true, status: res.status, data: null };
+      return res.text().then(function (text) {
+        var data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+        return { ok: res.ok, status: res.status, data: data };
+      });
+    });
+  }
+  function errorMessage(result, fallback) {
+    if (result && result.data) {
+      if (typeof result.data === 'string') return result.data;
+      if (result.data.message) return result.data.message;
+    }
+    return fallback;
+  }
+
+  // ---------- status (discreet — a dot only, with a title/sr-only label) ----------
+  var pollTimer = null;
+  function checkHealth() {
+    request('/health').then(function (res) {
+      var wasDown = statusDot.className.indexOf('up') === -1;
+      if (res.ok) {
+        statusDot.className = 'dot up';
+        statusText.textContent = 'connected';
+        statusWrap.title = 'Connected';
+        if (wasDown) loadRecords(true);
+      } else {
+        statusDot.className = 'dot down';
+        statusText.textContent = 'unreachable';
+        statusWrap.title = 'API unreachable';
+      }
+    }).catch(function () {
+      statusDot.className = 'dot down';
+      statusText.textContent = 'unreachable — the free instance may be waking up';
+      statusWrap.title = 'API unreachable — it may just be waking up (free tier)';
+    });
+  }
+  function startPolling() {
+    if (pollTimer) window.clearInterval(pollTimer);
+    checkHealth();
+    pollTimer = window.setInterval(checkHealth, 20000);
+  }
+
+  // ---------- list ----------
+  function renderList(records) {
+    recordCount.textContent = records.length ? (records.length + (records.length === 1 ? ' person' : ' people')) : '';
+
+    if (!records.length) {
+      listHost.innerHTML = '<div class="empty">No one yet — add the first person above.</div>';
+      return;
+    }
+
+    var html = '<ul class="records">' + records.map(function (a) {
+      if (editingId === a.id) return editItemHtml(a);
+      return (
+        '<li class="record" data-id="' + a.id + '">' +
+          '<span class="record-name">' + escapeHtml(a.name) + '</span>' +
+          '<span class="record-email">' + escapeHtml(a.email) + '</span>' +
+          '<span class="record-phone">' + escapeHtml(a.phone_number || '—') + '</span>' +
+          '<span class="record-actions">' +
+            '<button class="btn-plain" data-edit="' + a.id + '" type="button">Edit</button>' +
+            '<button class="btn-plain danger" data-delete="' + a.id + '" type="button">Delete</button>' +
+          '</span>' +
+        '</li>'
+      );
+    }).join('') + '</ul>';
+    listHost.innerHTML = html;
+
+    Array.prototype.forEach.call(listHost.querySelectorAll('[data-edit]'), function (btn) {
+      btn.addEventListener('click', function () { editingId = Number(btn.getAttribute('data-edit')); renderList(currentRecords); });
+    });
+    Array.prototype.forEach.call(listHost.querySelectorAll('[data-delete]'), function (btn) {
+      btn.addEventListener('click', function () { deleteRecord(Number(btn.getAttribute('data-delete'))); });
+    });
+    Array.prototype.forEach.call(listHost.querySelectorAll('[data-cancel]'), function (btn) {
+      btn.addEventListener('click', function () { editingId = null; renderList(currentRecords); });
+    });
+    Array.prototype.forEach.call(listHost.querySelectorAll('[data-save]'), function (btn) {
+      btn.addEventListener('click', function () { saveEdit(Number(btn.getAttribute('data-save'))); });
+    });
+  }
+
+  function editItemHtml(a) {
+    return (
+      '<li class="edit-card" data-id="' + a.id + '">' +
+        '<div class="field"><label>Name</label><input id="e-name" value="' + escapeHtml(a.name) + '" /></div>' +
+        '<div class="row2">' +
+          '<div class="field"><label>Email</label><input id="e-email" value="' + escapeHtml(a.email) + '" /></div>' +
+          '<div class="field">Phone<br/><input id="e-phone" value="' + escapeHtml(a.phone_number || '') + '" style="margin-top:5px;" /></div>' +
+        '</div>' +
+        '<div class="field"><label>Address</label><input id="e-address" value="' + escapeHtml(a.address) + '" /></div>' +
+        '<div class="edit-actions">' +
+          '<button class="btn-plain" data-cancel="1" type="button">Cancel</button>' +
+          '<button class="btn btn-save" data-save="' + a.id + '" type="button">Save</button>' +
+        '</div>' +
+      '</li>'
+    );
+  }
+
+  function loadRecords(silent) {
+    return request('/accounts').then(function (res) {
+      if (!res.ok) {
+        if (!silent) listHost.innerHTML = '<div class="empty">Could not load the list (status ' + res.status + ').</div>';
+        return;
+      }
+      currentRecords = Array.isArray(res.data) ? res.data : [];
+      renderList(currentRecords);
+    }).catch(function () {
+      if (!silent) listHost.innerHTML = '<div class="empty">Could not reach the API. If it just woke up, try again shortly.</div>';
+    });
+  }
+
+  function saveEdit(id) {
+    var name = document.getElementById('e-name').value.trim();
+    var email = document.getElementById('e-email').value.trim();
+    var phone = document.getElementById('e-phone').value.trim();
+    var address = document.getElementById('e-address').value.trim();
+    if (!name || !email || !address) { showToast('Name, email, and address are required.', true); return; }
+    var body = { name: name, email: email, address: address };
+    if (phone) body.phone_number = phone;
+    request('/accounts/' + id, { method: 'PUT', body: body })
+      .then(function (res) {
+        if (!res.ok) { showToast(errorMessage(res, 'Could not save changes.'), true); return; }
+        editingId = null;
+        showToast('Saved.');
+        loadRecords();
+      })
+      .catch(function () { showToast('Network error while saving.', true); });
+  }
+
+  function deleteRecord(id) {
+    if (!window.confirm('Remove this person? This can\u2019t be undone.')) return;
+    var li = listHost.querySelector('.record[data-id="' + id + '"]');
+    if (li) li.classList.add('leaving');
+    window.setTimeout(function () {
+      request('/accounts/' + id, { method: 'DELETE' }).then(function (res) {
+        if (!res.ok) { showToast('Could not delete.', true); loadRecords(); return; }
+        showToast('Removed.');
+        loadRecords();
+      }).catch(function () { showToast('Network error while deleting.', true); loadRecords(); });
+    }, li ? 200 : 0);
+  }
+
+  createForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    createError.className = 'error';
+    var name = document.getElementById('f-name').value.trim();
+    var email = document.getElementById('f-email').value.trim();
+    var address = document.getElementById('f-address').value.trim();
+    var phone = document.getElementById('f-phone').value.trim();
+    var body = { name: name, email: email, address: address };
+    if (phone) body.phone_number = phone;
+
+    createBtn.disabled = true;
+    createBtnLabel.innerHTML = '<span class="spinner"></span>';
+
+    request('/accounts', { method: 'POST', body: body })
+      .then(function (res) {
+        if (!res.ok) {
+          createError.textContent = errorMessage(res, 'Could not add this person (status ' + res.status + ').');
+          createError.className = 'error show';
+          return;
+        }
+        createForm.reset();
+        showToast('Added.');
+        loadRecords();
+      })
+      .catch(function () {
+        createError.textContent = 'Network error — the free instance may still be waking up.';
+        createError.className = 'error show';
+      })
+      .then(function () {
+        createBtn.disabled = false;
+        createBtnLabel.textContent = 'Add person';
+      });
+  });
+
+  var debounceTimer = null;
+  apiBaseInput.addEventListener('change', function () {
+    window.clearTimeout(debounceTimer);
+    debounceTimer = window.setTimeout(function () { editingId = null; startPolling(); loadRecords(); }, 200);
+  });
+
+  startPolling();
+  loadRecords();
+})();
+</script>
+</body>
+</html>

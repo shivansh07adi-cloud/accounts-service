@@ -8,7 +8,9 @@
 
 A RESTful microservice for managing customer **Accounts**, built with Flask and PostgreSQL, containerized with Docker, deployed to Kubernetes/OpenShift, and shipped through a full CI/CD pipeline (GitHub Actions for CI, Tekton for CD).
 
-**Live demo:** _add your Render URL here once deployed, e.g. `https://accounts-service-xxxx.onrender.com`_ — try `GET /health` or `GET /accounts`. (First request may take ~30–60s to wake the free instance.)
+**Live demo:** https://accounts-service-2pc7.onrender.com — try `GET /health` or `GET /accounts`. (First request may take ~30–60s to wake the free instance.)
+
+**Frontend:** a small console UI lives in [`frontend/`](frontend/) — deploy it to Vercel for a clickable demo on top of this API (see [`frontend/README.md`](frontend/README.md)).
 
 It's a small, focused service — but it's wired up the way a real production microservice would be: input validation, security headers, structured logging, automated tests with coverage reporting, a Dockerized build, Kubernetes manifests, and a Tekton pipeline that lints, tests, builds and deploys it automatically.
 
