@@ -1,0 +1,34 @@
+# Render Blueprint — one-click deploy of the Accounts Service + a free Postgres database.
+# In the Render dashboard: New -> Blueprint -> connect this repo -> Apply.
+# Docs: https://render.com/docs/blueprint-spec
+databases:
+  - name: accounts-db
+    databaseName: accounts
+    user: accounts
+    plan: free
+
+services:
+  - type: web
+    runtime: docker
+    name: accounts-service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true   # Render generates a random secret; it never lives in the repo
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: accounts-db
+          property: host
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: accounts-db
+          property: database
+      - key: DATABASE_USER
+        fromDatabase:
+          name: accounts-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: accounts-db
+          property: password

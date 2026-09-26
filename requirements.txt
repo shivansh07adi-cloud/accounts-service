@@ -1,0 +1,38 @@
+# Pin Werkzeug because it keeps breaking Flask!
+Werkzeug==2.1.2
+
+# Runtime dependencies
+Flask==2.1.2
+Flask-SQLAlchemy==2.5.1
+# Flask-SQLAlchemy 2.5.1 predates SQLAlchemy 2.0 and breaks on it (AttributeError
+# on import) if left unpinned, so SQLAlchemy is pinned to the last compatible 1.4.x line.
+SQLAlchemy>=1.4,<2.0
+psycopg2-binary==2.9.3
+python-dotenv==0.20.0
+
+# Runtime tools
+gunicorn==20.1.0
+honcho==1.1.0
+
+# Code quality
+pylint>=3.0
+flake8>=6.0
+black>=24.0
+
+# Testing dependencies (pytest replaces the unmaintained nose/pinocchio combo,
+# which no longer installs cleanly on current Python)
+pytest>=7.4
+pytest-cov>=4.1
+factory-boy>=3.2
+
+# Code Coverage
+coverage>=7.0
+
+# Utilities
+httpie==3.2.1
+
+# Security
+# x_xss_protection is now requested explicitly in service/__init__.py, so any
+# recent Flask-Talisman release works correctly.
+Flask-Talisman>=1.0.0
+Flask-Cors>=3.0.10
