@@ -8,9 +8,9 @@
 
 A RESTful microservice for managing customer **Accounts**, built with Flask and PostgreSQL, containerized with Docker, deployed to Kubernetes/OpenShift, and shipped through a full CI/CD pipeline (GitHub Actions for CI, Tekton for CD).
 
-**Live demo:** https://accounts-service-2pc7.onrender.com — try `GET /health` or `GET /accounts`. (First request may take ~30–60s to wake the free instance.)
+**Live demo:** [Frontend](https://accounts-service-eight.vercel.app/) (Vercel) · [API](https://accounts-service-2pc7.onrender.com) (Render) — try `GET /health` or `GET /accounts` directly. (First request to the API may take ~30–60s to wake the free instance.)
 
-**Frontend:** a small console UI lives in [`frontend/`](frontend/) — deploy it to Vercel for a clickable demo on top of this API (see [`frontend/README.md`](frontend/README.md)).
+**Frontend:** a small, plain console UI lives in [`frontend/`](frontend/) and is deployed separately on Vercel — see [`frontend/README.md`](frontend/README.md) for its own details.
 
 It's a small, focused service — but it's wired up the way a real production microservice would be: input validation, security headers, structured logging, automated tests with coverage reporting, a Dockerized build, Kubernetes manifests, and a Tekton pipeline that lints, tests, builds and deploys it automatically.
 
@@ -18,10 +18,12 @@ It's a small, focused service — but it's wired up the way a real production mi
 
 ## Table of contents
 
+- [Deployment topology](#deployment-topology)
 - [Architecture](#architecture)
 - [API reference](#api-reference)
 - [Data model](#data-model)
 - [Request lifecycle](#request-lifecycle)
+- [Frontend data flow](#frontend-data-flow)
 - [CI/CD pipeline](#cicd-pipeline)
 - [Project layout](#project-layout)
 - [Getting started](#getting-started)
@@ -30,6 +32,32 @@ It's a small, focused service — but it's wired up the way a real production mi
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
 - [Local Kubernetes + Tekton development](#local-kubernetes--tekton-development)
 - [License](#license)
+
+---
+
+## Deployment topology
+
+The frontend and backend are deployed independently, on two different free-tier platforms, and talk to each other only over the public internet via `fetch()` — there's no shared build step or hidden coupling between them.
+
+```mermaid
+flowchart LR
+    User(["Person in a browser"])
+
+    subgraph VercelHost["Vercel — static hosting"]
+        FE["frontend/index.html<br/>plain HTML + CSS + JS, no build step<br/>accounts-service-eight.vercel.app"]
+    end
+
+    subgraph RenderHost["Render — Docker web service"]
+        API["Flask API<br/>gunicorn in a container<br/>accounts-service-2pc7.onrender.com"]
+        PG[("PostgreSQL<br/>accounts-db (Render-managed)")]
+        API -- SQLAlchemy --> PG
+    end
+
+    User -- "loads the page" --> FE
+    FE -- "fetch() over HTTPS, CORS-enabled" --> API
+```
+
+Both sides redeploy independently and automatically: a push to `main` triggers a new Render build for the API, and Vercel rebuilds the static site whenever `frontend/` changes — there's nothing to wire up by hand after the initial setup in [Deploying to Render](#deploying-to-render-free-live-url-for-a-portfoliodemo) and [`frontend/README.md`](frontend/README.md).
 
 ---
 
@@ -130,6 +158,34 @@ sequenceDiagram
 ```
 
 If `deserialize()` raises a `DataValidationError` (missing/invalid field), the global error handler in `service/common/error_handlers.py` turns it into a `400 Bad Request` with a descriptive message instead of a stack trace.
+
+## Frontend data flow
+
+The frontend (`frontend/index.html`) is a single self-contained page — no framework, no build step, no bundler. It holds no state beyond what's currently on screen: every action re-reads from or writes to the live API, so the page and the database can never drift out of sync.
+
+```mermaid
+flowchart TD
+    Load["Page loads"] --> Poll["Poll GET /health every 20s"]
+    Poll -->|"200 OK"| Fetch["GET /accounts"]
+    Poll -->|"unreachable"| Quiet["Show a quiet status dot<br/>(no blocking error banner)<br/>keep polling"]
+    Quiet --> Poll
+    Fetch --> Render["Render the People list"]
+
+    Render --> Action{"Person adds, edits,<br/>or deletes a record"}
+    Action -->|"Add person"| Create["POST /accounts"]
+    Action -->|"Save"| Update["PUT /accounts/:id"]
+    Action -->|"Delete"| Delete["DELETE /accounts/:id"]
+
+    Create --> Refresh["Re-fetch GET /accounts"]
+    Update --> Refresh
+    Delete --> Refresh
+    Refresh --> Render
+```
+
+Two deliberate UX decisions worth calling out:
+
+- **The API base URL is just an editable field**, tucked behind a collapsed "Connect to a different API" disclosure — the same page can be pointed at `localhost` during development or at the live Render URL, with no rebuild.
+- **A failed health check never blocks the page.** The status dot goes quiet (not red/alarming) and polling continues in the background — appropriate for a free-tier backend that legitimately sleeps and wakes on its own.
 
 ## CI/CD pipeline
 
